@@ -52,74 +52,104 @@ class Car:
              "\n3.Search Record with status"
              "\n4.Search Record with Chassis no"
              "\n5.Update Record using chassis no"
-             "\n6.Exit")
+             "\n6.Book a car"
+             "\n7.Exit")
         self.log.debug(f"Successfully displayed the menu")
 
     def run(self):
         try:
             while True:
-                    self.display_menu()
-                    ch = int(input("\nEnter choice (1,2,3,4,5,6): "))
-                    self.log.info(f"User input is {ch}")
-                    car_service = CarService()
+                self.display_menu()
+                try:
+                    ch = int(input("\nEnter choice (1,2,3,4,5,6,7): "))
+                except ValueError:
+                    print(f"Please enter valid value type")
+                    continue
+                self.log.info(f"User input is {ch}")
+                car_service = CarService()
 
-                    # Adding new records
-                    if ch == 1:
-                        self.log.info(f"Adding new records")
-                        car = self.user_inputs()
-                        if car:
-                            entry = car_service.add(name=car.name, status=car.status, model=car.model, company=car.company)
-                            print(f"Successfully added car entry {entry}")
-                            self.log.info(f"Successfully added car entry {entry}")
-                        else:
-                            continue
-
-                    # Displaying new records
-                    elif ch == 2:
-                        self.log.info(f"Displaying records")
-                        print(f"Displaying all cars: ")
-                        all_cars = car_service.get_all_cars()
-                        for car in all_cars:
-                            car_service.display_car(car)
-                        self.log.info(f"Successfully displayed the records")
-
-                    # Search record with status
-                    elif ch == 3:
-                        try:
-                            self.log.info(f"Searching record with the status")
-                            status = input("Please enter the status: ")
-                            response = car_service.search_with_status(status)
-                            print(response)
-                        except ValueError:
-                            self.log.error(f"Please enter valid values")
-                            continue
-
-                    # Search record with chassis no
-                    elif ch == 4:
-                        try:
-                            self.log.info(f"Searching record with the Chassis no")
-                            chassis_no = input("Please enter the chassis no: ")
-                            response = car_service.search_with_chassis_no(chassis_no)
-                            print(response)
-                        except ValueError:
-                            self.log.error(f"Please enter valid values")
-                            continue
-
-                    # Updating the status using chassis no
-                    elif ch == 5:
-                        try:
-                            self.log.info(f"Updating status of the car using Chassis no")
-                            chassis_no = input("Please enter the chassis no: ")
-                            status = input("Enter updated status")
-                            response = car_service.update(chassis_no, status)
-                            print(f"Successfully update the record : \n{response.json()}")
-                        except ValueError:
-                            self.log.error(f"Please enter valid values")
-                            continue
-
+                # Adding new records
+                if ch == 1:
+                    self.log.info(f"Adding new records")
+                    car = self.user_inputs()
+                    if car:
+                        entry = car_service.add(name=car.name, status=car.status, model=car.model, company=car.company)
+                        print(f"Successfully added car entry {entry}")
+                        self.log.info(f"Successfully added car entry {entry}")
                     else:
-                        print("Thank you")
-                        break
+                        continue
+
+                # Displaying new records
+                elif ch == 2:
+                    self.log.info(f"Displaying records")
+                    print(f"Displaying all cars: ")
+                    all_cars = car_service.get_all_cars()
+                    for car in all_cars:
+                        car_service.display_car(car)
+                    self.log.info(f"Successfully displayed the records")
+
+                # Search record with status
+                elif ch == 3:
+                    try:
+                        self.log.info(f"Searching record with the status")
+                        status = input("Please enter the status: ")
+                        response = car_service.search_with_status(status)
+                        print(response.json())
+                    except ValueError:
+                        self.log.error(f"Please enter valid values")
+                        continue
+
+                # Search record with chassis no
+                elif ch == 4:
+                    try:
+                        self.log.info(f"Searching record with the Chassis no")
+                        chassis_no = input("Please enter the chassis no: ")
+                        response = car_service.search_with_chassis_no(chassis_no)
+                        print(response)
+                    except ValueError:
+                        self.log.error(f"Please enter valid values")
+                        continue
+
+                # Updating the status using chassis no
+                elif ch == 5:
+                    try:
+                        self.log.info(f"Updating status of the car using Chassis no")
+                        chassis_no = input("Please enter the chassis no: ")
+                        status = input("Enter updated status")
+                        response = car_service.update(chassis_no, status)
+                        print(f"Successfully update the record : \n{response.json()}")
+                    except ValueError:
+                        self.log.error(f"Please enter valid values")
+                        continue
+
+                # Book a car
+                # TODO : Handle the scenario to show car from last 2 hrs only
+                elif ch == 6:
+                    try:
+                        self.log.info(f"Booking new car")
+                        car_list = car_service.search_with_status(status="free")
+                        if car_list:
+                            print(f"\nBelow are the car available for booking :")
+                            for car in car_list:
+                                car_service.display_car(car)
+                        else:
+                            print(f"\nNo car available for booking !!")
+                            continue
+                        chassis_no = input("Enter the car chassis no to book: ")
+                        if chassis_no:
+                            record = car_service.update(chassis_no, status="reserved")
+                            print(f"Successfully booked the car {record.json()}")
+                        else:
+                            print(f"Please enter chassis no and try again")
+                            continue
+                        self.log.info(f"Successfully booked new car")
+                    except ValueError:
+                        self.log.error(f"Please enter valid values")
+                        continue
+
+                else:
+                    print("Thank you")
+                    break
         # TODO: Need to remove broad exception
         except Exception as exc:
             raise CarException(f"Exception occurred {exc}")

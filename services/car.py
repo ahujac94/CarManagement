@@ -8,9 +8,12 @@ from models.car import Car, Status
 
 class CarService:
 
-    # Added one static entry
+    # Added two static entry
     car_records: List[Car] = [Car(name="Creta", company="Hyundai", model=2021, status="free",
-                                  chassis_no="54cf2c55-da95-11eb-9652-d89c67b7662e")]
+                                  chassis_no="54cf2c55-da95-11eb-9652-d89c67b7662e"),
+                              Car(name="Harrier", company="TATA", model=2021, status="reserved",
+                                  chassis_no="55cf2c56-da95-11eb-9652-d89c77c7662e")
+                              ]
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
@@ -39,7 +42,7 @@ class CarService:
 
         """
         if len(CarService.car_records) > 0:
-            return [record.json() for record in CarService.car_records if record.status.lower() == status.lower()]
+            return [record for record in CarService.car_records if record.status.lower() == status.lower()]
         return f"No records found with the given status {status}"
 
     def get_all_cars(self):
